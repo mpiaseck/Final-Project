@@ -19,27 +19,29 @@
  
 (define VSLIDER-HANDLE-H 40)
 (define SLOT-OFFSET (/ VSLIDER-HANDLE-H 2))
- 
+  
 ;; draw the world
 ;; world -> image
 (define (draw-world ws)
   (begin
     (set-box! world-box ws)
+    (place-image (text "A" 18 "firebrick") 725 50
+    (place-image (text "B" 18 "firebrick") 725 410
     (place-components (ws-cs ws)
             (place-image (text "Deck A" 24 "black") 90 425
-            (place-image (text "Tempo" 20 "black") 325 460
-            (place-image (text "Crossfader" 20 "black") 510 460
-            (place-image (text "Deck B" 24 "black") 790 425
-            (place-image (text "Tempo" 20 "black") 695 460
+            (place-image (text "Tempo" 20 "black") 525 460
+            (place-image (text "Crossfader" 20 "black") 710 460
+            (place-image (text "Deck B" 24 "black") 990 425
+            (place-image (text "Tempo" 20 "black") 895 460
             (place-image (rectangle rh rh "solid" (if (false? (first (ws-but ws))) "red" "green")) 100 550
-            (place-image (rectangle rh rh "solid" (if (false? (second (ws-but ws))) "red" "green")) 210 550
-            (place-image (rectangle rh rh "solid" (if (false? (third (ws-but ws))) "red" "green")) 320 550
-            (place-image (rectangle rh rh "solid" (if (false? (fourth (ws-but ws))) "red" "green")) 680 550
-            (place-image (rectangle rh rh "solid" (if (false? (fifth (ws-but ws))) "red" "green")) 790 550
-            (place-image (rectangle rh rh "solid" (if (false? (sixth (ws-but ws))) "red" "green")) 900 550
-            (place-image (rectangle (* 2 rh) ( * 3 rh) "outline" "black") 150 250                                                                  
-            (place-image (rectangle (* 2 rh) ( * 3 rh) "outline" "black") 850 250  
-                      (empty-scene (ws-W ws) (ws-H ws))))))))))))))))))
+            (place-image (rectangle rh rh "solid" (if (false? (second (ws-but ws))) "red" "green")) 250 550
+            (place-image (rectangle rh rh "solid" (if (false? (third (ws-but ws))) "red" "green")) 400 550
+            (place-image (rectangle rh rh "solid" (if (false? (fourth (ws-but ws))) "red" "green")) 1000 550
+            (place-image (rectangle rh rh "solid" (if (false? (fifth (ws-but ws))) "red" "green")) 1150 550
+            (place-image (rectangle rh rh "solid" (if (false? (sixth (ws-but ws))) "red" "green")) 1300 550
+            (place-image (rectangle (* 4 rh) ( * 3 rh) "outline" "black") 250 250                                                                  
+            (place-image (rectangle (* 4 rh) ( * 3 rh) "outline" "black") 1150 250  
+                      (empty-scene (ws-W ws) (ws-H ws))))))))))))))))))))
  
  
 ;; place-components : list-of-components scene -> scene
@@ -327,15 +329,15 @@
 (define initial-world
   (make-ws (list
             (make-component (make-vslider 50 400 0.5)
-                            (make-posn 300 30))
+                            (make-posn 500 30))
             (make-component (make-vslider 50 400 0)
-                            (make-posn 392 30))
+                            (make-posn 592 30))
             (make-component (make-vslider 50 400 .5)
-                            (make-posn 484 30))
+                            (make-posn 684 30))
             (make-component (make-vslider 50 400 0)
-                            (make-posn 576 30))
+                            (make-posn 776 30))
             (make-component (make-vslider 50 400 0.5)
-                            (make-posn 668 30)))
+                            (make-posn 868 30)))
             (list false
                   false
                   false
@@ -343,7 +345,7 @@
                   false
                   false)
            #f
-           1000 1000))
+           1400 800))
  
 (define world-box (box initial-world))
  
