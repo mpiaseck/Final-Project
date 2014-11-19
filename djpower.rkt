@@ -30,17 +30,26 @@
 (define VSLIDER-HANDLE-H 40)
 (define SLOT-OFFSET (/ VSLIDER-HANDLE-H 2))
   
+;; draw the world every tick
+;; world -> image
+(define (draw-tick ws)
+  (both (draw-world ws) (make-ws (ws-cs ws)
+                                    (ws-but ws)
+                                    (ws-live ws)
+                                    (ws-W ws)
+                                    (ws-H ws))))
+
 ;; draw the world
 ;; world -> image
 (define (draw-world ws)
   (begin
     (set-box! world-box ws)
-    (place-image (rectangle 10 400 "solid" "green")
-                (+ 250
+    (place-image (rectangle 10 300 "solid" "green")
+                (+ 50
                    (* 400 (/ (unbox counter-box1) SONGLEN1)))
                 250
-   (place-image (rectangle 10 400 "solid" "green")
-                (+ 1150
+   (place-image (rectangle 10 300 "solid" "green")
+                (+ 950
                    (* 400 (/ (unbox counter-box2) SONGLEN2)))
                 250
     (place-image (text "A" 18 "firebrick") 725 50
@@ -469,4 +478,5 @@
 (big-bang initial-world
           [on-mouse meh]
           [to-draw draw-world]
-          [on-key onkey])
+          [on-key onkey]
+          [on-tick draw-tick])
