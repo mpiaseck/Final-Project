@@ -4,10 +4,17 @@
 (require 2htdp/universe)
 (require 2htdp/image)
 (require rsound)
+(require rsound/draw)
  
 (define SR 44100)
 (define (s sec) (* SR sec))
 (define (both a b) b)
+
+(define SONG1 (rs-read "/Users/Matt/Google Drive/Cal Poly/CPE/final-project/arcadia.wav"))
+(define SONGLEN1 (rs-frames SONG1))
+ 
+(define SONG2 (rs-read "/Users/Matt/Google Drive/Cal Poly/CPE/final-project/go.wav"))
+(define SONGLEN2 (rs-frames SONG2))
  
 (define-struct ws (cs but live W H))
  
@@ -17,6 +24,9 @@
  
 (define rh 100)
  
+(define counter-box1 (box 0))
+(define counter-box2 (box 0))
+
 (define VSLIDER-HANDLE-H 40)
 (define SLOT-OFFSET (/ VSLIDER-HANDLE-H 2))
   
@@ -25,6 +35,14 @@
 (define (draw-world ws)
   (begin
     (set-box! world-box ws)
+    (place-image (rectangle 10 400 "solid" "green")
+                (+ 250
+                   (* 400 (/ (unbox counter-box1) SONGLEN1)))
+                250
+   (place-image (rectangle 10 400 "solid" "green")
+                (+ 1150
+                   (* 400 (/ (unbox counter-box2) SONGLEN2)))
+                250
     (place-image (text "A" 18 "firebrick") 725 50
     (place-image (text "B" 18 "firebrick") 725 410
     (place-components (ws-cs ws)
@@ -39,11 +57,12 @@
             (place-image (rectangle rh rh "solid" (if (false? (fourth (ws-but ws))) "red" "green")) 1000 550
             (place-image (rectangle rh rh "solid" (if (false? (fifth (ws-but ws))) "red" "green")) 1150 550
             (place-image (rectangle rh rh "solid" (if (false? (sixth (ws-but ws))) "red" "green")) 1300 550
-            (place-image (rectangle (* 4 rh) ( * 3 rh) "outline" "black") 250 250                                                                  
-            (place-image (rectangle (* 4 rh) ( * 3 rh) "outline" "black") 1150 250  
-                      (empty-scene (ws-W ws) (ws-H ws))))))))))))))))))))
- 
- 
+            (place-image (rectangle (* 4 rh) ( * 3 rh) "outline" "black") 250 250 
+            (place-image (rectangle (* 4 rh) ( * 3 rh) "outline" "black") 1150 250
+                      (empty-scene (ws-W ws) (ws-H ws))))))))))))))))))))))
+
+
+
 ;; place-components : list-of-components scene -> scene
 ;; place all of the given components onto the scene
 (define (place-components comps scene)
@@ -62,7 +81,7 @@
                (+ (posn-y (component-posn c)) (/ (component-height c) 2))
                s))
  
- 
+
 ;; draw a vertical slider
 ;; slider -> image
 (define (draw-vslider vs)
@@ -81,7 +100,8 @@
      (/ w 2) slider-pixels
      (add-line (rectangle w h "solid" "white")
                (/ w 2) SLOT-OFFSET (/ w 2) (- h SLOT-OFFSET)
-               (make-pen "black" 7 "solid" "round" "round")))))
+               (make-pen "black" 7 "solid" "round" "round")))
+    ))
  
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -210,6 +230,11 @@
                                     (ws-live ws)
                                     (ws-W ws)
                                     (ws-H ws))]
+          [(key=? key " ") (both (stop) (make-ws (ws-cs ws)
+                                    (ws-but ws)
+                                    (ws-live ws)
+                                    (ws-W ws)
+                                    (ws-H ws)))] 
           [else (make-ws (ws-cs ws)
                          (ws-but ws)
                          (ws-live ws)
@@ -348,13 +373,7 @@
            1400 800))
  
 (define world-box (box initial-world))
- 
-(define SONG1 (rs-read "/Users/Matt/Google Drive/Cal Poly/CPE/final-project/arcadia.wav"))
-(define SONGLEN1 (rs-frames SONG1))
- 
-(define SONG2 (rs-read "/Users/Matt/Google Drive/Cal Poly/CPE/final-project/go.wav"))
-(define SONGLEN2 (rs-frames SONG2))
- 
+  
 ; song 1 volume
 (define fetch-volume1
         (vslider-val
@@ -421,6 +440,7 @@
  (network ()
    [ctr <= (flexloop1 SONGLEN1) (fetch-speed1)]
    [delayed-ctr = (maybe-wrap1 ctr (fetch-delay1) SONGLEN1)]
+   [dc = (set-box! counter-box1 ctr)]
    [out = (*  (vslider-val
          (component-s
           (third (ws-cs (unbox world-box))))) (/ (+ (rs-ith/left SONG1 (floor ctr))
@@ -439,6 +459,7 @@
  (network ()
    [ctr <= (flexloop2 SONGLEN2) (fetch-speed2)]
    [delayed-ctr = (maybe-wrap2 ctr (fetch-delay2) SONGLEN2)]
+   [dc = (set-box! counter-box2 ctr)]
    [out = (*  (- 1 (vslider-val
          (component-s
           (third (ws-cs (unbox world-box)))))) (/ (+ (rs-ith/left SONG2 (floor ctr))
@@ -449,157 +470,3 @@
           [on-mouse meh]
           [to-draw draw-world]
           [on-key onkey])
- 
-;*******
-;
-;   TEST CASES
-;
-;*******
- 
- 
-#;(check-expect
- (draw-vslider
-  (make-vslider 50 200 1.0))
- (place-image
-  (overlay
-   (text "99" 35 "black")
-   (rectangle 100 40 "solid" (make-color #xE0 #xD0 #x90)))
-  25 20
-  (add-line (rectangle 50 200 "solid" "white")
-            25 20 25 180
-            (make-pen "black" 7 "solid" "round" "round"))))
- 
-#;(check-expect
- (draw-vslider
-  (make-vslider 50 300 0.5))
- (place-image
-  (overlay
-   (text "50" 35 "black")
-  (rectangle 100 40 "solid" (make-color #xE0 #xD0 #x90)))
-  25 150
-  (add-line (rectangle 50 300 "solid" "white")
-            25 20 25 280
-            (make-pen "black" 7 "solid" "round" "round"))))
- 
-#; (check-expect
- (slider-posn-update (make-vslider 50 540 0.2) 145)
- (make-vslider 50 540 3/4))
- 
-#; (check-expect
- (place-components
-  (list (make-component (make-vslider 30 100 1/2) (make-posn 15 10))
-        (make-component (make-vslider 40 80 3/4) (make-posn 45 5)))
-  (empty-scene 400 500))
- (place-image (draw-vslider (make-vslider 40 80 3/4))
-  65 45
-  (place-image (draw-vslider (make-vslider 30 100 1/2))
-               30 60
-               (empty-scene 400 500))))
- 
-#;(check-expect
- (components-posn-update
-  (list (make-component (make-vslider 30 100 1/2) (make-posn 15 10))
-        (make-component (make-vslider 40 80 3/4) (make-posn 45 5)))
-  (make-posn 45 5)
-  0)
- (list (make-component (make-vslider 30 100 1/2) (make-posn 15 10))
-        (make-component (make-vslider 40 80 1) (make-posn 45 5))))
- 
-(define test-component (make-component (make-vslider 30 40 1/2)
-                                          (make-posn -50 16)))
-;(check-expect (in-bounding-box? test-component -51 16) #f)
-;(check-expect (in-bounding-box? test-component -50 15) #f)
-;(check-expect (in-bounding-box? test-component -50 16) #t)
-;(check-expect (in-bounding-box? test-component -21 16) #t)
-;(check-expect (in-bounding-box? test-component -20 16) #f)
-;(check-expect (in-bounding-box? test-component -21 55) #t)
-;(check-expect (in-bounding-box? test-component -21 56) #f)
- 
-(define example-components
-  (list (make-component (make-vslider 100 150 0.1) (make-posn 30 40))
-        (make-component (make-vslider 10 30 0.5) (make-posn 140 20))))
- 
-;(check-expect (xy->component example-components 0 0) false)
-;(check-expect (xy->component example-components 30 40) (make-posn 30 40))
-;(check-expect (xy->component example-components 35 45) (make-posn 30 40))
-;(check-expect (xy->component example-components 130 45) false)
-;(check-expect (xy->component example-components 141 45) (make-posn 140 20))
- 
- 
- 
-#;(check-expect
- (draw-world (make-ws (list
-                       (make-component (make-vslider 50 150 0.3)
-                                       (make-posn 23 49)))
-                      #t
-                      500 300))
- (place-image (draw-vslider (make-vslider 50 150 0.3))
-              (+ 23 25) (+ 49 75)
-              (empty-scene 500 300)))
- 
- 
-#;(check-expect
- (meh (make-ws (list (make-component (make-vslider 50 540 0.2)
-                                     (make-posn 0 0)))
-               (make-posn 0 0)
-               50 540)
-      100 145 "move")
- (make-ws (list (make-component (make-vslider 50 540 3/4)
-                                (make-posn 0 0)))
-          (make-posn 0 0)
-          50 540))
- 
-;; ignored move:
-#; (check-expect
- (meh (make-ws (list
-                (make-component (make-vslider 50 540 1/5)
-                                (make-posn 0 0)))
-               #f
-               50 540)
-      100 145 "move")
- (make-ws (list
-           (make-component (make-vslider 50 540 1/5) (make-posn 0 0)))
-          #f
-          50 540))
- 
- 
- 
-;; missed click:
-#; (check-expect
- (meh (make-ws (list
-                (make-component (make-vslider 50 540 1/5)
-                                (make-posn 0 0)))
-               #f
-               50 540)
-      100 145 "button-down")
- (make-ws (list
-           (make-component (make-vslider 50 540 1/5)
-                           (make-posn 0 0)))
-          #f
-          50 540))
- 
-;; hit click
-#; (check-expect
- (meh (make-ws (list
-                (make-component (make-vslider 50 540 1/5)
-                                (make-posn 0 0)))
-               #f
-               50 540)
-      40 145 "button-down")
- (make-ws  (list
-            (make-component (make-vslider 50 540 3/4)
-                            (make-posn 0 0)))
-           (make-posn 0 0)
-           50 540))
- 
- 
-;; release:
-#; (check-expect
- (meh (make-ws (list
-                (make-component (make-vslider 50 540 1/5)
-                                (make-posn 0 0))) #t
-               50 540)
-      100 145 "button-up")
- (make-ws (list (make-component (make-vslider 50 540 1/5)
-                                (make-posn 0 0))) #f
-           50 540))
